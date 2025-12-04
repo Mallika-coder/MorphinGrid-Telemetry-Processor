@@ -30,16 +30,17 @@ services:
   # 3. WORKER SERVICE (Asynchronous Processing & BullMQ)
   # FIX: Setting context to the root directory (..) so it can access the shared 'backend/src/utils/fileParser.js'
   worker:
-    build:
-      context: ..  
-      dockerfile: worker/Dockerfile 
-    container_name: morphin-worker
-    env_file:
-      - ../worker/.env
-    depends_on:
-      - mongo
-      - redis
-      - ml-service # Depends on Python ML Service
+  build:
+    context: ..  
+    dockerfile: worker/Dockerfile
+  container_name: morphin-worker
+  env_file:
+    - ./worker/.env   # relative path to docker-compose.yml
+  depends_on:
+    - mongo
+    - redis
+    - ml-service
+
 
   # 4. FRONTEND SERVICE (Next.js UI)
   frontend:
