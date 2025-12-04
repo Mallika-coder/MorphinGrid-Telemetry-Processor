@@ -1,0 +1,71 @@
+services:
+  # 1. PYTHON ML SERVICE (AI/ML)
+  ml-service:
+    build:
+      context: ./ml-service # Build context is its own folder
+      dockerfile: Dockerfile
+    container_name: morphin-ml-service
+    ports:
+      - "8000:8000"
+    
+  # 2. BACKEND SERVICE (API Gateway & Socket.IO)
+  backend:
+    build:
+      context: ./backend # Build context is local backend folder
+    container_name: morphin-backend
+    ports:
+      - "4000:4000" 
+    env_file:
+      # FIX: .env file is now relative to the current folder (ROOT)
+      - ../backend/.env 
+    depends_on:
+      - mongo
+      - redis
+      - ml-service
+
+  # 3. WORKER SERVICE (BullMQ Processor)
+  worker:
+    build:
+      # FIX: Build context is the root directory (.). Still needs worker/Dockerfile path.
+      context: . 
+      dockerfile: worker/Dockerfile 
+    container_name: morphin-worker
+    env_file:
+      # FIX: .env file is now relative to the current folder (ROOT)
+      - ./worker/.env
+    depends_on:
+      - mongo
+      - redis
+      - ml-service
+
+  # 4. FRONTEND SERVICE (Next.js UI)
+  frontend:
+    build:
+      context: ./frontend
+    container_name: morphin-frontend
+    ports:
+      - "3000:3000"
+    env_file:
+      # FIX: .env.local file is now relative to the current folder (ROOT)
+      - ./frontend/.env.local
+    depends_on:
+      - backend
+
+  # 5. MONGO DATABASE
+  mongo:
+    image: mongo:6
+    container_name: morphin-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  # 6. REDIS CACHE
+  redis:
+    image: redis:7
+    container_name: morphin-redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  mongo_data:
