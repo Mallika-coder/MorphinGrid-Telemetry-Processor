@@ -1,6 +1,4 @@
 services:
-  # 1. PYTHON ML SERVICE (Context: Root Directory)
-  # Uses context: .. to access the ml-service/Dockerfile and ml-service/requirements.txt
   ml-service:
     build:
       context: ..
@@ -8,49 +6,38 @@ services:
     container_name: morphin-ml-service
     ports:
       - "8000:8000"
-    # Internal communication only; expose is sufficient, but port is helpful for debugging
-    
-  # 2. BACKEND SERVICE (API Gateway & Socket.IO)
+
   backend:
-    # Context should be root to access the local file system structure from the worker
     build:
       context: ../backend
     container_name: morphin-backend
     ports:
-      # FIX: Standardized to 4000 to match all Node/Next.js environment variables
-      - "4000:4000" 
+      - "4000:4000"
     env_file:
-      - ./.env 
+      - ./.env
+    depends_on:
+      mongo:
+        condition: service_started
+      redis:
+        condition: service_started
+      ml-service:
+        condition: service_started
 
-  depends_on:
-    mongo:
-      condition: service_started
-    redis:
-      condition: service_started
-    ml-service:
-      condition: service_started
-
-
-  # 3. WORKER SERVICE (Asynchronous Processing & BullMQ)
-  # FIX: Setting context to the root directory (..) so it can access the shared 'backend/src/utils/fileParser.js'
   worker:
-  build:
-    context: ..  
-    dockerfile: worker/Dockerfile
-  container_name: morphin-worker
-  env_file:
-    - ./worker/.env   # relative path to docker-compose.yml
-  depends_on:
-    mongo:
-      condition: service_started
-    redis:
-      condition: service_started
-    ml-service:
-      condition: service_started
+    build:
+      context: ..  
+      dockerfile: worker/Dockerfile
+    container_name: morphin-worker
+    env_file:
+      - ./worker/.env
+    depends_on:
+      mongo:
+        condition: service_started
+      redis:
+        condition: service_started
+      ml-service:
+        condition: service_started
 
-
-
-  # 4. FRONTEND SERVICE (Next.js UI)
   frontend:
     build:
       context: ../frontend
@@ -58,11 +45,10 @@ services:
     ports:
       - "3000:3000"
     env_file:
-      - ../frontend/.env.local 
+      - ../frontend/.env.local
     depends_on:
-      - backend # Waits for the backend API to be available
+      backend: {}   # v2 compatible mapping format
 
-  # 5. MONGO DATABASE
   mongo:
     image: mongo:6
     container_name: morphin-mongo
@@ -70,15 +56,12 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
-    # restart: always # Best practice but omitted for simpler run
 
-  # 6. REDIS CACHE (BullMQ's dependency)
   redis:
     image: redis:7
     container_name: morphin-redis
     ports:
       - "6379:6379"
-    # restart: always # Best practice but omitted for simpler run
 
 volumes:
   mongo_data:
