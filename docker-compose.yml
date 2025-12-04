@@ -22,10 +22,14 @@ services:
     env_file:
       - ./.env 
 
-    depends_on:
-      - mongo
-      - redis
-      - ml-service # Depends on Python ML Service
+  depends_on:
+    mongo:
+      condition: service_started
+    redis:
+      condition: service_started
+    ml-service:
+      condition: service_started
+
 
   # 3. WORKER SERVICE (Asynchronous Processing & BullMQ)
   # FIX: Setting context to the root directory (..) so it can access the shared 'backend/src/utils/fileParser.js'
@@ -37,9 +41,13 @@ services:
   env_file:
     - ./worker/.env   # relative path to docker-compose.yml
   depends_on:
-    - mongo
-    - redis
-    - ml-service
+    mongo:
+      condition: service_started
+    redis:
+      condition: service_started
+    ml-service:
+      condition: service_started
+
 
 
   # 4. FRONTEND SERVICE (Next.js UI)
