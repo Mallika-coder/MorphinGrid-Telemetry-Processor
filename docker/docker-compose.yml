@@ -1,0 +1,47 @@
+version: '3.8'
+services:
+  mongo:
+    image: mongo:6
+    restart: always
+    ports: ["27017:27017"]
+    volumes:
+      - mongo-data:/data/db
+  redis:
+    image: redis:7
+    restart: always
+    ports: ["6379:6379"]
+  ml-service:  # NEW PYTHON SERVICE
+    build: 
+      context: ../ml-service
+      dockerfile: Dockerfile
+    command: uvicorn anomaly_api:app --host 0.0.0.0 --port 8000
+    ports: ["8000:8000"]
+    expose: ["8000"]
+  backend:
+    build: ../backend
+    command: npm run dev
+    ports: ["4000:4000"]
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/morphin
+      - REDIS_URL=redis://redis:6379
+      - FRONTEND_URL=http://localhost:3000
+      - ML_SERVICE_URL=http://ml-service:8000 # Use service name
+    depends_on: [mongo, redis, ml-service]
+  worker:
+    build: ../worker
+    command: npm run dev
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/morphin
+      - REDIS_URL=redis://redis:6379
+      - ML_SERVICE_URL=http://ml-service:8000 # Use service name
+    depends_on: [mongo, redis, ml-service]
+  frontend:
+    build: ../frontend
+    command: npm run dev
+    ports: ["3000:3000"]
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:4000
+      - NEXT_PUBLIC_WS_URL=http://localhost:4000
+    depends_on: [backend]
+volumes:
+  mongo-data:
