@@ -47,7 +47,8 @@ services:
     env_file:
       - ../frontend/.env.local
     depends_on:
-      backend: {}   # v2 compatible mapping format
+    backend:
+      condition: service_started  # v2 compatible mapping format
 
   mongo:
     image: mongo:6
