@@ -1,4 +1,4 @@
-const { parseCSV } = require('../../backend/src/utils/fileParser');
+const { parseCSV } = require('../utils/fileParser');
 const TelemetryClean = require('../../backend/src/models/TelemetryClean');
 const Anomaly = require('../../backend/src/models/Anomaly');
 const { detectAnomaliesForBatch } = require('./anomalyDetection');
