@@ -20,7 +20,8 @@ services:
       # FIX: Standardized to 4000 to match all Node/Next.js environment variables
       - "4000:4000" 
     env_file:
-      - ../backend/.env 
+      - ./.env 
+
     depends_on:
       - mongo
       - redis
