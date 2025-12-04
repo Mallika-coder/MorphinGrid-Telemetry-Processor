@@ -39,16 +39,16 @@ services:
         condition: service_started
 
   frontend:
-    build:
-      context: ../frontend
-    container_name: morphin-frontend
-    ports:
-      - "3000:3000"
-    env_file:
-      - ../frontend/.env.local
-    depends_on:
-    backend:
-      condition: service_started  # v2 compatible mapping format
+  build:
+    context: ../frontend
+  container_name: morphin-frontend
+  ports:
+    - "3000:3000"
+  env_file:
+    - ../frontend/.env.local
+  depends_on:
+    - backend   # array format
+
 
   mongo:
     image: mongo:6
