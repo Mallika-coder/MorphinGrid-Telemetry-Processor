@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # 1. PYTHON ML SERVICE (Context: Root Directory)
   # Uses context: .. to access the ml-service/Dockerfile and ml-service/requirements.txt
