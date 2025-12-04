@@ -1,0 +1,23 @@
+# --- Dependencies and Build Files ---
+# Ignore all Node dependency folders
+/backend/node_modules
+/worker/node_modules
+/frontend/node_modules
+/node_modules
+
+# Next.js build and cache folders
+/.next/
+/out/
+.next
+
+# Python virtual environment folder
+/ml-service/venv
+
+# --- Sensitive/Local Files ---
+# Environment variables containing secrets
+.env
+.env.local
+
+# --- Uploads and Temporary Files ---
+# Folder where uploaded files are temporarily stored by Multer
+/backend/uploads/
