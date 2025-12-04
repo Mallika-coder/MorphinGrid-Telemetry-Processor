@@ -172,7 +172,7 @@ You must manually start MongoDB and Redis, and then start each service in a sepa
 
 -----
 
-## 👥 Team Alpha Squad
+## 👥 Team - The Web Matrix
 
 | Name | Registration No. | Email ID | Mobile Number | GitHub Username | Role |
 | :--- | :--- | :--- | :--- | :--- | :--- |
