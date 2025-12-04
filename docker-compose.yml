@@ -12,14 +12,16 @@ services:
       - redis
 
   worker:
-    build:
-      context: ./worker
-    container_name: morphin-worker
-    env_file:
-      - ./worker/.env
-    depends_on:
-      - mongo
-      - redis
+  build:
+    context: .
+    dockerfile: worker/Dockerfile
+  container_name: morphin-worker
+  env_file:
+    - ./worker/.env
+  depends_on:
+    - mongo
+    - redis
+
 
   frontend:
     build:
