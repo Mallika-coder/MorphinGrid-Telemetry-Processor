@@ -1,57 +1,59 @@
 services:
-  # 1. PYTHON ML SERVICE (AI/ML)
   ml-service:
-    build:
-      context: ./ml-service # Build context is its own folder
-      dockerfile: Dockerfile
-    container_name: morphin-ml-service
-    ports:
-      - "8000:8000"
-    
-  # 2. BACKEND SERVICE (API Gateway & Socket.IO)
+   build:
+    context: ..      # go up from docker/ to root folder
+    dockerfile: ml-service/Dockerfile
+   container_name: morphin-ml-service
+   ports:
+    - "8000:8000"
+
+
   backend:
     build:
-      context: ./backend # Build context is local backend folder
+      context: ../backend
     container_name: morphin-backend
     ports:
-      - "4000:4000" 
+      - "4000:4000"
     env_file:
-      # FIX: .env file is now relative to the current folder (ROOT)
-      - ../backend/.env 
+      - C:/Users/Mallika Verma/OneDrive/Desktop/MorphinGrid-Telemetry-Processor/backend/.env
     depends_on:
       - mongo
       - redis
       - ml-service
-
-  # 3. WORKER SERVICE (BullMQ Processor)
+    volumes:
+    - ./backend:/app
+  
   worker:
-    build:
-      # FIX: Build context is the root directory (.). Still needs worker/Dockerfile path.
-      context: . 
-      dockerfile: worker/Dockerfile 
-    container_name: morphin-worker
-    env_file:
-      # FIX: .env file is now relative to the current folder (ROOT)
-      - ./worker/.env
-    depends_on:
-      - mongo
-      - redis
-      - ml-service
+   build:
+    context: ../worker
+    dockerfile: Dockerfile
+   container_name: worker
+   working_dir: /app
+   volumes:
+    - ../worker:/app
+   command: ["npm", "run", "dev"]
+   restart: always
+   depends_on:
+    - backend
+    - ml-service
+   ports:
+    - "3000:3000"
 
-  # 4. FRONTEND SERVICE (Next.js UI)
   frontend:
     build:
-      context: ./frontend
+      context: ../frontend
+      dockerfile: Dockerfile
+    volumes:
+    - ../frontend:/app
     container_name: morphin-frontend
     ports:
-      - "3000:3000"
+    - "3000:3000"
+    #container_name: morphin-frontend
     env_file:
-      # FIX: .env.local file is now relative to the current folder (ROOT)
-      - ./frontend/.env.local
+      - C:/Users/Mallika Verma/OneDrive/Desktop/MorphinGrid-Telemetry-Processor/frontend/.env.local
     depends_on:
       - backend
 
-  # 5. MONGO DATABASE
   mongo:
     image: mongo:6
     container_name: morphin-mongo
@@ -60,7 +62,6 @@ services:
     volumes:
       - mongo_data:/data/db
 
-  # 6. REDIS CACHE
   redis:
     image: redis:7
     container_name: morphin-redis
