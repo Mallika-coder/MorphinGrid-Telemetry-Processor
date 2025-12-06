@@ -11,17 +11,22 @@ services:
   backend:
     build:
       context: ../backend
+      dockerfile: Dockerfile
     container_name: morphin-backend
+    working_dir: /app
     ports:
       - "4000:4000"
     env_file:
-      - C:/Users/Mallika Verma/OneDrive/Desktop/MorphinGrid-Telemetry-Processor/backend/.env
+      - ../backend/.env
+    #env_file:
+      #- C:/Users/Mallika Verma/OneDrive/Desktop/MorphinGrid-Telemetry-Processor/backend/.env
     depends_on:
       - mongo
       - redis
       - ml-service
     volumes:
-    - ./backend:/app
+    - ../backend:/app
+    command: ["npm", "run", "dev"]
   
   worker:
    build:
@@ -36,8 +41,7 @@ services:
    depends_on:
     - backend
     - ml-service
-   ports:
-    - "3000:3000"
+    - redis
 
   frontend:
     build:

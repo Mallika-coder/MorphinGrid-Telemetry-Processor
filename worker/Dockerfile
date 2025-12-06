@@ -14,4 +14,5 @@ RUN npm install
 # 3. Copy the rest of the worker source code (from worker/src)
 COPY src/ ./src/
 
-CMD ["npm", "run", "dev"]
+CMD ["node", "src/worker.js"]
+
