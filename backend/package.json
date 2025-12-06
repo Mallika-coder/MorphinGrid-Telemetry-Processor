@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "src/worker.js",
   "scripts": {
-    "dev": "nodemon src/worker.js",
+    "dev": "nodemon src/server.js",
     "start": "node src/worker.js"
   },
   "dependencies": {
