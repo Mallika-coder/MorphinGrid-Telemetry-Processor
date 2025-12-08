@@ -7,53 +7,75 @@
 [![Worker Queue: BullMQ](https://img.shields.io/badge/Worker%20Queue-BullMQ-red.svg)]()
 [![AI/ML: Isolation Forest](https://img.shields.io/badge/AI%2FML-Isolation%20Forest-darkgreen.svg)]()
 
-### 🌟 Overview
+---
 
-The **MorphinGrid Bio-Telemetry Processor** is an advanced, production-minded platform designed to combat data corruption and overload within the Ranger network. This project fulfills the requirement for a **backend-heavy** system by creating a scalable, polyglot microservice architecture that ingests massive volumes of telemetry logs, performs data cleaning, and detects critical anomalies in real-time.
+## 1. 🌟 Project Overview
 
-### 🎯 Problem Solved
+The **MorphinGrid Bio-Telemetry Processor** is an advanced, production-minded platform designed to combat data corruption and overload within the Ranger network. This project creates a **scalable, polyglot microservice architecture** that ingests massive volumes of telemetry logs, performs data cleaning, and detects critical anomalies in real-time.
 
-Ranger suit and Zord sensor data are constantly corrupted by enemy viruses, making manual monitoring impossible. This system automates the process: it cleans the data pipeline and uses an unsupervised AI model (Isolation Forest) to instantly flag dangerous, hidden threats or deviations in metrics like Heart Rate and Engine Temperature, providing the Command Center with reliable, real-time intelligence.
+This system moves beyond simple data storage to provide intelligent, verified, and real-time intelligence for high-stakes operational environments.
 
 ---
 
-## 💻 Technical Architecture & Data Flow
+## 2. 🎯 Problem Statement (PS Number 10)
 
-The architecture is built on five core services orchestrated by Docker Compose, showcasing expertise in distributed systems and polyglot persistence. 
+* **Problem:** Ranger suit and Zord sensor data are constantly corrupted by enemy viruses, making manual monitoring impossible. The massive volumes of telemetry logs are unreliable and unusable due to corruption and overload.
+* **Objective:** To build a robust, scalable backend pipeline capable of serving clean, verified telemetry data and detecting hidden threats or anomalies.
+* **Selected Idea:** Project 10: Build a backend pipeline that ingests real telemetry data, validates it, processes it, stores it, and exposes analysis APIs.
 
-1.  **Ingestion:** Files are uploaded via the **Next.js Frontend**.
-2.  **Queueing:** The **Node.js Backend (Express)** pushes the file path onto the **BullMQ** queue (backed by **Redis**).
-3.  **Processing (Worker):** The **Node.js Worker** consumes the job, reads the file, and prepares batches of cleaned data.
-4.  **AI/ML:** The Worker sends batches to the dedicated **Python ML Service (FastAPI)**, which runs the **Isolation Forest** model for anomaly scoring.
-5.  **Persistence:** Clean data and anomaly records are saved to **MongoDB**.
-6.  **Real-Time Monitoring:** **Socket.IO** pushes instant anomaly alerts and live data points to the **Frontend** dashboard for visualization.
+---
 
-### Key Technologies
+## 3. 💻 System Architecture / High-level Design
 
-| Component | Technology | Rationale / Focus |
+The architecture is built on **five core microservices** orchestrated by Docker Compose, showcasing expertise in distributed systems and polyglot persistence. 
+
+| Service | Technology | Role in Pipeline |
 | :--- | :--- | :--- |
-| **Frontend** | **Next.js 14 (React)** | UI/UX Polish, Live Charting, Query Console, Real-time Alerts. |
-| **Backend** | **Node.js (Express)** | API Gateway, Mongoose ORM, Socket.IO Server. |
-| **Worker Queue** | **BullMQ** (powered by **Redis**) | Asynchronous, non-blocking heavy file processing and task distribution. |
-| **AI/ML Service** | **Python (FastAPI)** & **Scikit-learn** | Dedicated microservice for running high-performance, unsupervised anomaly detection (Isolation Forest). |
-| **Database** | **MongoDB** | Highly scalable database for storing vast amounts of time-series telemetry data. |
+| **Frontend** | **Next.js 14 (React)** | UI/UX, Live Charting, Real-time Alerts. |
+| **Backend** | **Node.js (Express)** | API Gateway, pushes file paths onto the BullMQ queue. |
+| **Worker Queue** | **BullMQ / Redis** | Manages asynchronous, non-blocking heavy file processing. |
+| **Processing Worker** | **Node.js Worker** | Consumes jobs, performs data cleaning/validation, and sends data to the ML Service. |
+| **AI/ML Service** | **Python (FastAPI)** | Dedicated microservice for high-performance anomaly detection. |
+| **Database** | **MongoDB** | Highly scalable storage for time-series telemetry data. |
 
 ---
 
-## ✨ Features Implemented
+## 4. 🧠 AI/ML Integration Details
 
-* **Asynchronous Ingestion Pipeline:** File uploads are non-blocking, handled by the BullMQ worker.
-* **Polyglot Anomaly Detection:** Node.js worker seamlessly communicates with the Python ML microservice via HTTP.
-* **Real-Time Anomaly Alerting:** Socket.IO instantly highlights critical anomalies on the live chart view and updates the incident list.
+* **Model:** Unsupervised **Isolation Forest** (Scikit-learn).
+* **Process:** The Node.js Worker sends batches of cleaned data to the dedicated Python ML Service (FastAPI). The model instantly flags dangerous, hidden threats or deviations (anomalies) in metrics like Heart Rate and Engine Temperature.
+* **Implementation:** Achieved via **Polyglot Anomaly Detection**, where the Node.js worker seamlessly communicates with the Python ML microservice via HTTP.
+
+---
+
+## 5. ✨ Features Implemented
+
+The following core features have been successfully implemented:
+
+* **Asynchronous Ingestion Pipeline:** File uploads are non-blocking, managed by the BullMQ worker.
+* **Polyglot Anomaly Detection:** Node.js worker communicates with the Python ML microservice over HTTP.
+* **Real-Time Anomaly Alerting:** **Socket.IO** instantly highlights critical anomalies on the live chart view and updates the incident list.
 * **Data Validation & Normalization:** Robust logic within the worker ensures data integrity before persistence.
 * **Telemetry Dashboard:** Displays synchronized charts for key metrics (HR, Temp) and historical anomaly records.
-* **Containerized Environment:** Full setup provided via `docker-compose.yml`.
+* **Containerized Environment:** Full setup provided via `docker-compose.yml` for simplified deployment and environment parity.
 
 ---
 
-## 🛠️ Setup and Installation (Recommended: Docker)
+## 6. 📚 API Documentation (Key Endpoints)
 
-This project requires five services to run simultaneously. Docker Compose is strongly recommended for setup.
+| Endpoint | Method | Service | Description | Rationale |
+| :--- | :--- | :--- | :--- | :--- |
+| `/api/upload-telemetry` | `POST` | Node.js Backend | Secure API for uploading CSV/JSON files. Pushes job to BullMQ queue. | Non-blocking heavy file ingestion. |
+| `/api/query-logs` | `GET` | Node.js Backend | Retrieves processed logs based on time-range, Ranger ID, and summary statistics. | Front-end data querying and filtering. |
+| `/ml/predict-anomaly` | `POST` | Python ML Service | Receives a batch of data from the Worker and returns anomaly scores. | Dedicated, high-performance ML scoring. |
+
+**Real-Time Channel:** Socket.IO is used to stream `telemetry_alert` events for live visualization.
+
+---
+
+## 7. 🛠️ Setup and Installation (Recommended: Docker)
+
+This project requires five services to run simultaneously.
 
 ### Prerequisites
 
@@ -65,114 +87,36 @@ This project requires five services to run simultaneously. Docker Compose is str
 ```bash
 git clone [https://github.com/Mallika-coder/MorphinGrid-Telemetry-Processor.git](https://github.com/Mallika-coder/MorphinGrid-Telemetry-Processor.git)
 cd MorphinGrid-Telemetry-Processor
-
-
-Here is the complete code for your `README.md` file, incorporating the professional project description, the architecture, the multi-service setup, and your team's details.
-
-[cite_start]This structure is optimized for high marks in the **GitHub & Documentation (10%)** and **Technical Depth (25%)** evaluation criteria[cite: 419, 410].
-
------
-
-````markdown
-# 🛡️ MorphinGrid Bio-Telemetry Processor
-
-## Project 10: AI-Powered Telemetry Pipeline & Anomaly Detection
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tech Stack: MERN + Python](https://img.shields.io/badge/Tech%20Stack-MERN%20%2B%20Python-blue.svg)]()
-[![Worker Queue: BullMQ](https://img.shields.io/badge/Worker%20Queue-BullMQ-red.svg)]()
-[![AI/ML: Isolation Forest](https://img.shields.io/badge/AI%2FML-Isolation%20Forest-darkgreen.svg)]()
-
-### 🌟 Overview
-
-The **MorphinGrid Bio-Telemetry Processor** is an advanced, production-minded platform designed to combat data corruption and overload within the Ranger network. This project fulfills the requirement for a **backend-heavy** system by creating a scalable, polyglot microservice architecture that ingests massive volumes of telemetry logs, performs data cleaning, and detects critical anomalies in real-time.
-
-### 🎯 Problem Solved
-
-Ranger suit and Zord sensor data are constantly corrupted by enemy viruses, making manual monitoring impossible. This system automates the process: it cleans the data pipeline and uses an unsupervised AI model (Isolation Forest) to instantly flag dangerous, hidden threats or deviations in metrics like Heart Rate and Engine Temperature, providing the Command Center with reliable, real-time intelligence.
-
----
-
-## 💻 Technical Architecture & Data Flow
-
-The architecture is built on five core services orchestrated by Docker Compose, showcasing expertise in distributed systems and polyglot persistence. 
-
-1.  **Ingestion:** Files are uploaded via the **Next.js Frontend**.
-2.  **Queueing:** The **Node.js Backend (Express)** pushes the file path onto the **BullMQ** queue (backed by **Redis**).
-3.  **Processing (Worker):** The **Node.js Worker** consumes the job, reads the file, and prepares batches of cleaned data.
-4.  **AI/ML:** The Worker sends batches to the dedicated **Python ML Service (FastAPI)**, which runs the **Isolation Forest** model for anomaly scoring.
-5.  **Persistence:** Clean data and anomaly records are saved to **MongoDB**.
-6.  **Real-Time Monitoring:** **Socket.IO** pushes instant anomaly alerts and live data points to the **Frontend** dashboard for visualization.
-
-### Key Technologies
-
-| Component | Technology | Rationale / Focus |
-| :--- | :--- | :--- |
-| **Frontend** | **Next.js 14 (React)** | UI/UX Polish, Live Charting, Query Console, Real-time Alerts. |
-| **Backend** | **Node.js (Express)** | API Gateway, Mongoose ORM, Socket.IO Server. |
-| **Worker Queue** | **BullMQ** (powered by **Redis**) | Asynchronous, non-blocking heavy file processing and task distribution. |
-| **AI/ML Service** | **Python (FastAPI)** & **Scikit-learn** | Dedicated microservice for running high-performance, unsupervised anomaly detection (Isolation Forest). |
-| **Database** | **MongoDB** | Highly scalable database for storing vast amounts of time-series telemetry data. |
-
----
-
-## ✨ Features Implemented
-
-* **Asynchronous Ingestion Pipeline:** File uploads are non-blocking, handled by the BullMQ worker.
-* **Polyglot Anomaly Detection:** Node.js worker seamlessly communicates with the Python ML microservice via HTTP.
-* **Real-Time Anomaly Alerting:** Socket.IO instantly highlights critical anomalies on the live chart view and updates the incident list.
-* **Data Validation & Normalization:** Robust logic within the worker ensures data integrity before persistence.
-* **Telemetry Dashboard:** Displays synchronized charts for key metrics (HR, Temp) and historical anomaly records.
-* **Containerized Environment:** Full setup provided via `docker-compose.yml`.
-
----
-
-## 🛠️ Setup and Installation (Recommended: Docker)
-
-This project requires five services to run simultaneously. Docker Compose is strongly recommended for setup.
-
-### Prerequisites
-
-* Docker and Docker Compose
-* Git
-
-### 1. Clone Repository
-
-```bash
-git clone [https://github.com/Mallika-coder/MorphinGrid-Telemetry-Processor.git](https://github.com/Mallika-coder/MorphinGrid-Telemetry-Processor.git)
-cd MorphinGrid-Telemetry-Processor
-````
-
-### 2\. Start Services
-
+2. Start Services
 Ensure you are in the project root directory.
 
-```bash
+Bash
+
 # Build all images and start the 5 services (Mongo, Redis, ML, Backend, Worker, Frontend)
 docker-compose -f docker/docker-compose.yml up --build
-```
+The application will be accessible at http://localhost:3000.
 
-The application will be accessible at `http://localhost:3000`.
+8. 🛑 Error Handling & Reliability Considerations
+Asynchronous Resilience: Using BullMQ ensures that if any worker process fails during heavy computation, the job can be automatically retried or failed gracefully, preventing data loss.
 
-### 3\. Manual Start (Without Docker)
+Microservice Isolation: Docker containerization ensures that a catastrophic failure in one service (e.g., the ML service) does not affect the stability of the API Gateway or the Frontend.
 
-You must manually start MongoDB and Redis, and then start each service in a separate terminal:
+Data Validation: Logic is implemented to manage corrupted or suspicious data points flagged by the virus, ensuring only clean data is persisted.
 
-1.  **ML Service (Terminal 1):** `cd ml-service && uvicorn anomaly_api:app --host 0.0.0.0 --port 8000`
-2.  **Backend (Terminal 2):** `cd backend && npm run dev`
-3.  **Worker (Terminal 3):** `cd worker && npm run dev`
-4.  **Frontend (Terminal 4):** `cd frontend && npm run dev`
+9. 🔭 Future Improvements
+To elevate this to a true startup-grade product, the next steps include:
 
-### 4\. Usage
+Blockchain Integration: Implement a Smart Contract on a network like Polygon to store immutable hash proofs (e.g., Merkle Root) of the processed data batches. This guarantees verifiable data integrity and non-tampering.
 
-1.  Navigate to `http://localhost:3000/upload`.
-2.  Upload a test CSV file (must contain columns like `ranger_id`, `timestamp`, `heart_rate`, `engine_temp`).
-3.  Monitor the `worker` terminal logs to verify ML service calls.
-4.  View the live data stream and anomaly alerts on the Dashboard (`/`).
+Advanced ML Models: Integrate a more sophisticated time-series model like an Autoencoder or LSTM for complex pattern detection.
+
+User Authentication & Authorization: Implement JWT-based security to protect API endpoints.
+
+Deployment: Deploy the Frontend to Vercel/Netlify and the Backend services to AWS/GCP using Docker.
 
 -----
 
-## 👥 Team - The Web Matrix
+10. 👥 Team - The Web Matrix
 
 | Name | Registration No. | Email ID | Mobile Number | GitHub Username | Role |
 | :--- | :--- | :--- | :--- | :--- | :--- |
