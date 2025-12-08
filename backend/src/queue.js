@@ -1,9 +1,13 @@
 const { Queue } = require('bullmq');
 const IORedis = require('ioredis');
 
-const connection = new IORedis(process.env.REDIS_URL || 'redis://redis:6379');
+const connection = new IORedis({
+  host: '127.0.0.1',
+  port: 6379,
+  maxRetriesPerRequest: null
+});
 
-// Optional: agar tum queue yahin create karna chahte ho
+// Queue
 const ingestQueue = new Queue('ingest', { connection });
 
 module.exports = {
