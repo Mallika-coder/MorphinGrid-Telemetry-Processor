@@ -121,14 +121,8 @@ Deployment: Deploy the Frontend to Vercel/Netlify and the Backend services to AW
 | Name | Registration No. | Email ID | Mobile Number | GitHub Username | Role |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Mallika Verma** | 20243158 | sonimallikav@gmail.com | 9569714178 | [Mallika-coder](https://www.google.com/search?q=https://github.com/Mallika-coder) | Team Leader, Backend/Architecture |
-| :--- | :--- | :--- | :--- | :--- | :--- |
 | Khushi Verma | 20243139 | khushi.20243139@mnnit.ac.in | 9517084973 | [akakhushiverma](https://www.google.com/search?q=https://github.com/akakhushiverma) | Frontend/UI/UX, Real-time Visualization |
-| :--- | :--- | :--- | :--- | :--- | :--- |
 | Mahi Kalwani | 20243157 | mahi.20243157@gmail.com | 7489767313 | [kalwani977](https://www.google.com/search?q=https://github.com/kalwani977) | Worker/Data Pipeline, Database Schema |
-| :--- | :--- | :--- | :--- | :--- | :--- |
 | Meenakshi Choudhary | 20243166 | meenakshi.20243166@mnnit.ac.in | 8000667614 | [M-eena-kshi](https://www.google.com/search?q=https://github.com/M-eena-kshi) | Python ML Service, Docker/Deployment |
-
------
-
 ```
 ```
