@@ -9,48 +9,36 @@ export default function HomePage() {
   const [socketConnected, setSocketConnected] = useState(false);
 
   useEffect(() => {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL;
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL;
 
-    // 1️⃣ Initial fetch from backend
-    fetch(`${backendUrl}/api/data`)
-      .then(res => res.json())
-      .then(initialData => setData(initialData))
-      .catch(err => console.error('Error fetching data:', err));
+  // Initial fetch
+  fetch(`${backendUrl}/api/data/query?limit=10`)
+    .then(res => res.json())
+    .then(initialData => setData(initialData.data)) // <-- fix here
+    .catch(err => console.error('Error fetching data:', err));
 
-    // 2️⃣ Connect to socket server
-    const socket = io(socketUrl);
+  // Socket connection
+  const socket = io(socketUrl);
 
-    socket.on('connect', () => {
-      console.log('Connected to socket server');
-      setSocketConnected(true);
+  socket.on('connect', () => setSocketConnected(true));
+  socket.on('disconnect', () => setSocketConnected(false));
+
+  socket.on('dataUpdate', (updatedItem) => {
+    setData(prevData => {
+      const index = prevData.findIndex(item => item._id === updatedItem._id);
+      if (index !== -1) {
+        const newData = [...prevData];
+        newData[index] = updatedItem;
+        return newData;
+      }
+      return [...prevData, updatedItem];
     });
+  });
 
-    socket.on('disconnect', () => {
-      console.log('Disconnected from socket server');
-      setSocketConnected(false);
-    });
+  return () => socket.disconnect();
+}, []);
 
-    // 3️⃣ Listen for real-time updates
-    // Backend should emit something like: socket.emit('dataUpdate', updatedData)
-    socket.on('dataUpdate', (updatedItem) => {
-      setData(prevData => {
-        // Update existing item if present, else add new
-        const index = prevData.findIndex(item => item._id === updatedItem._id);
-        if (index !== -1) {
-          const newData = [...prevData];
-          newData[index] = updatedItem;
-          return newData;
-        }
-        return [...prevData, updatedItem];
-      });
-    });
-
-    // Cleanup
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
 
   return (
     <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
